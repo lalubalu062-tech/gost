@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Engine - Visual Tracker</title>
+    <title>Ghost Engine - Human Jitter Tracker</title>
     <style>
         body { margin: 0; padding: 0; background-color: #0b0c10; font-family: sans-serif; height: 100vh; overflow: hidden; }
         
-        /* TAB 1: MAIN BLOG */
         #ghost-browser { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 100; overflow: auto; color: black;
             border: 8px solid #ffaa00; box-sizing: border-box;
         }
         
-        /* TAB 2: VIRTUAL POPUP */
         #ghost-popup {
             display: none; position: fixed; top: 5%; left: 5%; width: 90vw; height: 90vh;
             background: white; z-index: 200; border: 8px solid #00ffcc;
@@ -29,28 +27,25 @@
         }
         .error-msg { color: red; text-align: center; margin-top: 50px; font-weight: bold; }
 
-        /* --- 🔥 NEW VISUAL TRACKERS (Red Line & Green Plus) 🔥 --- */
+        /* HUMAN JITTER TRACKERS */
         .red-scroll-line {
             position: absolute;
-            left: 50%;
-            width: 6px;
-            height: 45px;
+            width: 8px;
+            height: 50px;
             background-color: #ff0000;
-            box-shadow: 0 0 20px #ff0000;
+            box-shadow: 0 0 15px #ff0000;
             z-index: 9998;
-            border-radius: 5px;
+            border-radius: 10px;
             pointer-events: none;
-            transform: translateX(-50%);
         }
         
         .green-click-plus {
             position: fixed;
             color: #00ff00;
-            font-size: 120px;
+            font-size: 100px;
             font-weight: 900;
-            text-shadow: 0 0 40px #00ff00, 3px 3px 5px black;
+            text-shadow: 0 0 30px #00ff00, 3px 3px 5px black;
             z-index: 10000;
-            transform: translate(-50%, -50%);
             pointer-events: none;
         }
     </style>
@@ -89,38 +84,46 @@
 
                 const html = await response.text();
                 browserContent.innerHTML = html;
-                status1.innerText = "🟧 TAB 1 - Blog Loaded! Tedha-medha scroll shuru...";
+                status1.innerText = "🟧 TAB 1 - Blog Loaded! Insaani scroll shuru...";
                 
                 const finalScrollTarget = Math.floor(Math.random() * 800) + 1200;
-                startRandomScroll(ghostBrowser, 0, finalScrollTarget, simulateRandomClick);
+                startRandomScroll(ghostBrowser, 0, finalScrollTarget, simulateHumanClick);
             } catch (error) {}
         }
 
-        // RANDOM SCROLL & RED LINE GENERATOR
+        // RANDOM SCROLL (Thumb Simulation)
         function startRandomScroll(element, currentScroll, maxScroll, callback) {
             if (currentScroll >= maxScroll) {
-                status1.innerText = "🟧 TAB 1 - Scroll Pura Hua! Target Link dhund raha hai...";
-                setTimeout(callback, 2000);
+                status1.innerText = "🟧 TAB 1 - Target Link dhund raha hai...";
+                setTimeout(callback, Math.floor(Math.random() * 1500) + 1000);
                 return;
             }
-            const randomStep = Math.floor(Math.random() * 250) + 100;
+            const randomStep = Math.floor(Math.random() * 300) + 50; // Chote-bade scroll
             element.scrollBy({ top: randomStep, behavior: 'smooth' });
             
-            // 🔴 LAL LINE BANAO JAHAN RUKA HAI
+            // 🔴 LAL LINE (Random X-axis & Rotation)
             let redLine = document.createElement('div');
             redLine.className = 'red-scroll-line';
-            // Scroll ke hisaab se position set karna
-            redLine.style.top = (element.scrollTop + (window.innerHeight / 2)) + 'px'; 
+            redLine.style.top = (element.scrollTop + (window.innerHeight / 2) + (Math.random() * 200 - 100)) + 'px'; 
+            
+            // Screen ke 20% se 80% ke beech random jagah lal line banegi
+            const randomLeft = Math.floor(Math.random() * 60) + 20; 
+            redLine.style.left = randomLeft + '%';
+            
+            // Thoda sa tedha (rotate) karega anguthe ki tarah
+            const randomAngle = Math.floor(Math.random() * 40) - 20; 
+            redLine.style.transform = `rotate(${randomAngle}deg)`;
+            
             browserContent.appendChild(redLine);
             
-            const randomTime = Math.floor(Math.random() * 1500) + 1500;
+            const randomTime = Math.floor(Math.random() * 1800) + 800; // Tez-dheere pauses
             setTimeout(() => {
                 startRandomScroll(element, currentScroll + randomStep, maxScroll, callback);
             }, randomTime);
         }
 
-        // TARGET LINK & GREEN PLUS GENERATOR
-        async function simulateRandomClick() {
+        // IMPERFECT TARGETING & CLICKING
+        async function simulateHumanClick() {
             const allLinks = Array.from(browserContent.querySelectorAll('a'));
             const validLinks = allLinks.filter(a => a.href && a.href.includes('updategoli.blogspot.com/') && !a.href.includes('#'));
 
@@ -129,27 +132,40 @@
                 const chosenLinkElement = validLinks[Math.floor(Math.random() * validLinks.length)];
                 const randomSelectedLink = chosenLinkElement.href; 
                 
-                status1.innerText = "🟧 TAB 1 - Link Mil Gaya! Click karne jaa raha hai...";
+                status1.innerText = "🟧 TAB 1 - Link Mil Gaya! Imperfect scroll kar raha hai...";
 
-                // Screen ko scroll karke us link ke paas le jao
-                chosenLinkElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Screen ko exact center me nahi, thoda random offset ke sath scroll karega
+                const linkRect = chosenLinkElement.getBoundingClientRect();
+                const randomOffset = Math.floor(Math.random() * 300) - 150; // Center se upar/niche
+                const targetScrollY = ghostBrowser.scrollTop + linkRect.top - (window.innerHeight / 2) + randomOffset;
+                
+                ghostBrowser.scrollTo({ top: targetScrollY, behavior: 'smooth' });
 
-                // Thoda ruk kar Green Plus banao
+                // Thoda ruk kar Green Plus banao (Insaan sochega, fir dabayega)
                 setTimeout(() => {
-                    let rect = chosenLinkElement.getBoundingClientRect();
+                    let finalRect = chosenLinkElement.getBoundingClientRect();
                     
-                    // ✅ GREEN PLUS BANAO TARGET PAR
                     let greenPlus = document.createElement('div');
                     greenPlus.className = 'green-click-plus';
                     greenPlus.innerHTML = '+';
-                    // Exact button/link ke coordinates
-                    greenPlus.style.left = (rect.left + (rect.width / 2)) + 'px';
-                    greenPlus.style.top = (rect.top + (rect.height / 2)) + 'px';
+                    
+                    // ✅ GREEN PLUS LINK KE ANDAR RANDOM JAGAH PAR GIREGA (Center me nahi)
+                    // Button/Link ki width/height ke andar random X aur Y nikalna
+                    let randomClickX = finalRect.left + (Math.random() * finalRect.width);
+                    let randomClickY = finalRect.top + (Math.random() * finalRect.height);
+                    
+                    greenPlus.style.left = randomClickX + 'px';
+                    greenPlus.style.top = randomClickY + 'px';
+                    
+                    // Click ko bhi thoda tilt de diya
+                    const randomTilt = Math.floor(Math.random() * 30) - 15;
+                    greenPlus.style.transform = `translate(-50%, -50%) rotate(${randomTilt}deg)`;
+                    
                     document.body.appendChild(greenPlus);
 
-                    status1.innerText = "🟧 TAB 1 - 💥 CLICKED! Popup khulne wala hai...";
+                    status1.innerText = "🟧 TAB 1 - 💥 BINGO CLICKED! Popup khulne wala hai...";
 
-                    // Green plus dikhane ke 1.5 second baad popup kholo
+                    // Green plus dikhane ke baad popup kholo
                     setTimeout(async () => {
                         ghostPopup.style.display = 'block';
                         status2.innerText = `🟦 TAB 2 - Nayi Post Fetch Kar Raha Hai...`;
@@ -161,14 +177,13 @@
                             status2.innerText = `🟦 TAB 2 - Nayi Post Loaded! Ab ye bhi scroll hogi...`;
 
                             const finalPopupScroll = Math.floor(Math.random() * 400) + 600;
-                            // Naye tab mein red line nahi daali taaki screen mess na ho, par wo scroll hoga
                             startRandomScroll(ghostPopup, 0, finalPopupScroll, () => {
-                                status2.innerText = `✅ MISSION SUCCESS: Dono tab me Human-Like reading complete!`;
+                                status2.innerText = `✅ MISSION SUCCESS: 100% Human verification passed!`;
                             });
                         } catch (error) {}
                     }, 1500);
 
-                }, 800); // Scroll hone ke liye 0.8s ka wait
+                }, 1200); 
 
             } else {
                 status1.innerText = "🟧 TAB 1 - Koi clickable link nahi mila!";
