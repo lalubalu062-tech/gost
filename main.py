@@ -8,19 +8,21 @@ app = FastAPI()
 async def home():
     return FileResponse("templates/index.html")
 
-# Ghost Proxy - Strict Referrer Controller
+# Ghost Proxy - Strict Referrer & Real User-Agent Controller
 @app.get("/proxy-browser")
 async def fetch_blog(request: Request, target_url: str, referer_url: str = None):
     client_ip = request.client.host
     
+    # 🕵️‍♂️ Asli user ka User-Agent nikalna (Agar kisi wajah se na mile toh default use karega)
+    real_user_agent = request.headers.get("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+    
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "User-Agent": real_user_agent,  # Ab har user ka apna asli phone/PC ka detail jayega!
         "X-Forwarded-For": client_ip, 
         "X-Real-IP": client_ip
     }
     
-    # Agar frontend se koi referer bheja hai toh wahi lagao, 
-    # Nahi toh Render ka khud ka URL default referer banega
+    # Referer set karna
     if referer_url:
         headers["Referer"] = referer_url
     else:
@@ -31,4 +33,3 @@ async def fetch_blog(request: Request, target_url: str, referer_url: str = None)
         return HTMLResponse(content=response.text)
     except Exception as e:
         return HTMLResponse(content=f"Error: {str(e)}")
-        
