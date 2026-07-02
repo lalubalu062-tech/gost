@@ -1,22 +1,20 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, FileResponse
 import requests
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
 
-# Ye landing page dikhayega
+# Ye seedha HTML file dikhayega (Jinja2 ka error ab nahi aayega)
 @app.get("/")
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+async def home():
+    return FileResponse("templates/index.html")
 
 # Ye Ghost Proxy hai jo chup-chap dusra blog layega
 @app.get("/proxy-browser")
 async def fetch_blog(request: Request, target_url: str):
     client_ip = request.client.host
     headers = {
-        "User-Agent": request.headers.get("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"),
+        "User-Agent": request.headers.get("User-Agent", "Mozilla/5.0"),
         "X-Forwarded-For": client_ip, 
         "X-Real-IP": client_ip
     }
