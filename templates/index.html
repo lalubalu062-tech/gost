@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Engine - Pro Testing</title>
+    <title>Ghost Engine - Visual Tracker</title>
     <style>
-        /* Background UI - Testing ke time hide rakhenge */
         body { margin: 0; padding: 0; background-color: #0b0c10; font-family: sans-serif; height: 100vh; overflow: hidden; }
         
-        /* TAB 1: MAIN BLOG (Full Screen) */
+        /* TAB 1: MAIN BLOG */
         #ghost-browser { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 100; overflow: auto; color: black;
             border: 8px solid #ffaa00; box-sizing: border-box;
         }
         
-        /* TAB 2: VIRTUAL POPUP (Full Screen Modal) */
+        /* TAB 2: VIRTUAL POPUP */
         #ghost-popup {
             display: none; position: fixed; top: 5%; left: 5%; width: 90vw; height: 90vh;
             background: white; z-index: 200; border: 8px solid #00ffcc;
@@ -23,31 +22,54 @@
             border-radius: 10px;
         }
 
-        /* LIVE TRACKING BARS */
         .status-bar { 
             background: #111; color: #fff; padding: 12px; font-weight: bold; 
-            text-align: center; position: sticky; top: 0; z-index: 999; 
+            text-align: center; position: sticky; top: 0; z-index: 9999; 
             font-size: 16px; font-family: monospace; border-bottom: 2px solid #555;
         }
-        .error-msg { color: red; text-align: center; margin-top: 50px; font-weight: bold; font-family: sans-serif; }
+        .error-msg { color: red; text-align: center; margin-top: 50px; font-weight: bold; }
+
+        /* --- 🔥 NEW VISUAL TRACKERS (Red Line & Green Plus) 🔥 --- */
+        .red-scroll-line {
+            position: absolute;
+            left: 50%;
+            width: 6px;
+            height: 45px;
+            background-color: #ff0000;
+            box-shadow: 0 0 20px #ff0000;
+            z-index: 9998;
+            border-radius: 5px;
+            pointer-events: none;
+            transform: translateX(-50%);
+        }
+        
+        .green-click-plus {
+            position: fixed;
+            color: #00ff00;
+            font-size: 120px;
+            font-weight: 900;
+            text-shadow: 0 0 40px #00ff00, 3px 3px 5px black;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
     <div id="ghost-browser">
-        <div class="status-bar" id="status1">🟧 TAB 1 (Main Blog) - Request Bhej Raha Hai...</div>
-        <div id="browser-content" style="padding:15px; text-align: center; margin-top: 20px;">
-            <h2>⏳ Loading Blog Data...</h2>
-        </div>
+        <div class="status-bar" id="status1">🟧 TAB 1 - Request Bhej Raha Hai...</div>
+        <div id="browser-content"></div>
     </div>
     
     <div id="ghost-popup">
-        <div class="status-bar" id="status2">🟦 TAB 2 (Popup Post) - Link Click Hone Ka Wait Kar Raha Hai...</div>
+        <div class="status-bar" id="status2">🟦 TAB 2 - Popup Ready</div>
         <div id="popup-content" style="padding:15px;"></div>
     </div>
 
     <script>
-        const ghostBrowser = document.getElementById('browser-content');
+        const ghostBrowser = document.getElementById('ghost-browser');
+        const browserContent = document.getElementById('browser-content');
         const ghostPopup = document.getElementById('ghost-popup');
         const popupContent = document.getElementById('popup-content');
         const status1 = document.getElementById('status1');
@@ -58,37 +80,38 @@
         async function startGhostEngine() {
             try {
                 const renderLandingUrl = window.location.href;
-                
-                // Backend ko request
                 const response = await fetch(`/proxy-browser?target_url=${encodeURIComponent(mainBlogUrl)}&referer_url=${encodeURIComponent(renderLandingUrl)}`);
                 
-                // ERROR CATCHER: Agar backend fail hua toh ye pakad lega
                 if (!response.ok) {
-                    ghostBrowser.innerHTML = `<h2 class="error-msg">❌ HTTP Error ${response.status}: Backend Proxy Fail!<br>Bhai, ek baar check kar lo ki main.py update hua hai ya nahi.</h2>`;
-                    status1.innerText = "🟧 TAB 1 - SYSTEM HALTED (Error)";
+                    browserContent.innerHTML = `<h2 class="error-msg">❌ HTTP Error ${response.status}</h2>`;
                     return;
                 }
 
                 const html = await response.text();
-                ghostBrowser.innerHTML = html;
+                browserContent.innerHTML = html;
                 status1.innerText = "🟧 TAB 1 - Blog Loaded! Tedha-medha scroll shuru...";
                 
-                // Random scroll limit (1000px se 1500px)
-                const finalScrollTarget = Math.floor(Math.random() * 500) + 1000;
-                startRandomScroll(document.getElementById('ghost-browser'), 0, finalScrollTarget, simulateRandomClick);
-            } catch (error) {
-                ghostBrowser.innerHTML = `<h2 class="error-msg">❌ Network/Fetch Error: ${error.message}</h2>`;
-            }
+                const finalScrollTarget = Math.floor(Math.random() * 800) + 1200;
+                startRandomScroll(ghostBrowser, 0, finalScrollTarget, simulateRandomClick);
+            } catch (error) {}
         }
 
+        // RANDOM SCROLL & RED LINE GENERATOR
         function startRandomScroll(element, currentScroll, maxScroll, callback) {
             if (currentScroll >= maxScroll) {
-                status1.innerText = "🟧 TAB 1 - Scroll Pura Hua! Ab random link par click karega...";
+                status1.innerText = "🟧 TAB 1 - Scroll Pura Hua! Target Link dhund raha hai...";
                 setTimeout(callback, 2000);
                 return;
             }
-            const randomStep = Math.floor(Math.random() * 200) + 100;
+            const randomStep = Math.floor(Math.random() * 250) + 100;
             element.scrollBy({ top: randomStep, behavior: 'smooth' });
+            
+            // 🔴 LAL LINE BANAO JAHAN RUKA HAI
+            let redLine = document.createElement('div');
+            redLine.className = 'red-scroll-line';
+            // Scroll ke hisaab se position set karna
+            redLine.style.top = (element.scrollTop + (window.innerHeight / 2)) + 'px'; 
+            browserContent.appendChild(redLine);
             
             const randomTime = Math.floor(Math.random() * 1500) + 1500;
             setTimeout(() => {
@@ -96,37 +119,57 @@
             }, randomTime);
         }
 
+        // TARGET LINK & GREEN PLUS GENERATOR
         async function simulateRandomClick() {
-            const allLinks = Array.from(ghostBrowser.querySelectorAll('a'));
-            // Sirf wahi links chhanenge jo tumhare blog ki proper posts hain
+            const allLinks = Array.from(browserContent.querySelectorAll('a'));
             const validLinks = allLinks.filter(a => a.href && a.href.includes('updategoli.blogspot.com/') && !a.href.includes('#'));
 
             if (validLinks.length > 0) {
-                const randomSelectedLink = validLinks[Math.floor(Math.random() * validLinks.length)].href; 
+                // Ekdum random link chuno
+                const chosenLinkElement = validLinks[Math.floor(Math.random() * validLinks.length)];
+                const randomSelectedLink = chosenLinkElement.href; 
                 
-                ghostPopup.style.display = 'block';
-                status2.innerText = `🟦 TAB 2 - Nayi Post Fetch Kar Raha Hai (Fake Referrer: main blog)...`;
+                status1.innerText = "🟧 TAB 1 - Link Mil Gaya! Click karne jaa raha hai...";
 
-                try {
-                    // Doosri request (Referrer spoofing ke sath)
-                    const response = await fetch(`/proxy-browser?target_url=${encodeURIComponent(randomSelectedLink)}&referer_url=${encodeURIComponent(mainBlogUrl + "/")}`);
+                // Screen ko scroll karke us link ke paas le jao
+                chosenLinkElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Thoda ruk kar Green Plus banao
+                setTimeout(() => {
+                    let rect = chosenLinkElement.getBoundingClientRect();
                     
-                    if (!response.ok) {
-                        popupContent.innerHTML = `<h2 class="error-msg">❌ Popup Error ${response.status}</h2>`;
-                        return;
-                    }
+                    // ✅ GREEN PLUS BANAO TARGET PAR
+                    let greenPlus = document.createElement('div');
+                    greenPlus.className = 'green-click-plus';
+                    greenPlus.innerHTML = '+';
+                    // Exact button/link ke coordinates
+                    greenPlus.style.left = (rect.left + (rect.width / 2)) + 'px';
+                    greenPlus.style.top = (rect.top + (rect.height / 2)) + 'px';
+                    document.body.appendChild(greenPlus);
 
-                    const popupHtml = await response.text();
-                    popupContent.innerHTML = popupHtml;
-                    status2.innerText = `🟦 TAB 2 - Nayi Post Loaded! Ab ye bhi scroll hogi...`;
+                    status1.innerText = "🟧 TAB 1 - 💥 CLICKED! Popup khulne wala hai...";
 
-                    const finalPopupScroll = Math.floor(Math.random() * 400) + 600;
-                    startRandomScroll(document.getElementById('ghost-popup'), 0, finalPopupScroll, () => {
-                        status2.innerText = `✅ MISSION SUCCESS: Dono tab me Human-Like reading complete!`;
-                    });
-                } catch (error) {
-                    popupContent.innerHTML = `<h2 class="error-msg">❌ Popup Fetch Error: ${error.message}</h2>`;
-                }
+                    // Green plus dikhane ke 1.5 second baad popup kholo
+                    setTimeout(async () => {
+                        ghostPopup.style.display = 'block';
+                        status2.innerText = `🟦 TAB 2 - Nayi Post Fetch Kar Raha Hai...`;
+
+                        try {
+                            const response = await fetch(`/proxy-browser?target_url=${encodeURIComponent(randomSelectedLink)}&referer_url=${encodeURIComponent(mainBlogUrl + "/")}`);
+                            const popupHtml = await response.text();
+                            popupContent.innerHTML = popupHtml;
+                            status2.innerText = `🟦 TAB 2 - Nayi Post Loaded! Ab ye bhi scroll hogi...`;
+
+                            const finalPopupScroll = Math.floor(Math.random() * 400) + 600;
+                            // Naye tab mein red line nahi daali taaki screen mess na ho, par wo scroll hoga
+                            startRandomScroll(ghostPopup, 0, finalPopupScroll, () => {
+                                status2.innerText = `✅ MISSION SUCCESS: Dono tab me Human-Like reading complete!`;
+                            });
+                        } catch (error) {}
+                    }, 1500);
+
+                }, 800); // Scroll hone ke liye 0.8s ka wait
+
             } else {
                 status1.innerText = "🟧 TAB 1 - Koi clickable link nahi mila!";
             }
