@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awesome Tech Blog</title>
+    <style>
+        /* VISIBLE UI - Landing Page */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; text-align: center; }
+        .btn { display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 15px; }
+        
+        /* GHOST ENGINE - Hidden from user */
+        #ghost-browser {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 1920px;
+            height: 1080px;
+            opacity: 0.01;
+            pointer-events: none;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="card">
+        <h1>Welcome to My Tech Blog</h1>
+        <p>Discover the latest tricks in Python, AI, and Automation.</p>
+        <a href="https://updategoli.blogspot.com" target="_blank" class="btn">Read Original Blog</a>
+    </div>
+
+    <div id="ghost-browser"></div>
+
+    <script>
+        // GHOST ENGINE LOGIC
+        const ghostBrowser = document.getElementById('ghost-browser');
+        const targetBloggerUrl = "https://updategoli.blogspot.com"; 
+
+        async function startGhostEngine() {
+            console.log("[Ghost] Engine Started...");
+            try {
+                // Backend Proxy se HTML lana
+                const response = await fetch(`/proxy-browser?target_url=${encodeURIComponent(targetBloggerUrl)}`);
+                const html = await response.text();
+                
+                // HTML ko hidden screen par inject karna
+                ghostBrowser.innerHTML = html;
+                console.log("[Ghost] Page Loaded Successfully!");
+
+                // Human Scrolling Shuru Karna
+                simulateHumanScroll();
+            } catch (error) {
+                console.error("[Ghost] Engine failed:", error);
+            }
+        }
+
+        // Auto-Scroll Logic
+        function simulateHumanScroll() {
+            let scrollAmount = 0;
+            console.log("[Ghost] Starting Human Scroll...");
+            
+            const scrollInterval = setInterval(() => {
+                // 300px niche scroll karega
+                ghostBrowser.scrollBy(0, 300);
+                scrollAmount += 300;
+                console.log("[Ghost] Scrolled 300px down");
+
+                // Jab 1500px scroll ho jaye tab ruk jana
+                if (scrollAmount >= 1500) {
+                    clearInterval(scrollInterval);
+                    console.log("[Ghost] First page task complete. Ready for tab 2.");
+                }
+            }, 3000); // Har 3 second me ek scroll (Insano ki tarah)
+        }
+
+        // Page load hone ke 2 seconds baad chup-chap engine chalu karo
+        setTimeout(startGhostEngine, 2000);
+    </script>
+</body>
+</html>
