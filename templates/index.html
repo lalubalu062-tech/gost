@@ -3,146 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Romantic Rain & Tech</title>
+    <title>Ghost Engine - Pro Testing</title>
     <style>
-        body {
-            margin: 0; padding: 0; background-color: #0b0c10; overflow: hidden; 
-            font-family: 'Segoe UI', sans-serif; color: white; display: flex; 
-            flex-direction: column; align-items: center; justify-content: center; 
-            height: 100vh; position: relative;
-        }
-        .rain { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .drop { position: absolute; bottom: 100%; width: 3px; height: 20px; border-radius: 5px; animation: fall linear infinite; }
-        @keyframes fall { to { transform: translateY(105vh); } }
-
-        .content { z-index: 2; text-align: center; background: rgba(0, 0, 0, 0.6); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(8px); max-width: 90%; }
-        .dancers { font-size: 60px; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; }
-        .dancers span { display: inline-block; animation: dance 1s infinite alternate ease-in-out; }
-        .dancers span:nth-child(2) { animation-delay: 0.5s; }
-        @keyframes dance { 0% { transform: translateY(0) rotate(-10deg); } 100% { transform: translateY(-20px) rotate(10deg); } }
-        .shayari { font-size: 20px; font-style: italic; margin-bottom: 30px; line-height: 1.8; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .btn { display: inline-block; padding: 12px 35px; background: linear-gradient(45deg, #ff007f, #7928ca); color: white; text-decoration: none; border-radius: 30px; font-weight: bold; }
-
-        /* FIRST TAB (Main Blog Screen - Testing Ke Liye Niche Dikhega) */
-        #ghost-browser { width: 100%; height: 200px; background: white; overflow: auto; margin-top: 20px; z-index: 2; border-radius: 10px; }
+        /* Background UI - Testing ke time hide rakhenge */
+        body { margin: 0; padding: 0; background-color: #0b0c10; font-family: sans-serif; height: 100vh; overflow: hidden; }
         
-        /* SECOND TAB (The Virtual Popup - Central Modal for Testing) */
-        #ghost-popup {
-            display: none; /* Click hone par hi khulega */
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%; height: 70%;
-            background: #ffffff; z-index: 999;
-            border: 6px solid #00ffcc; border-radius: 20px;
-            overflow: auto; box-shadow: 0 0 50px rgba(0, 255, 204, 1);
-            color: black;
+        /* TAB 1: MAIN BLOG (Full Screen) */
+        #ghost-browser { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: white; z-index: 100; overflow: auto; color: black;
+            border: 8px solid #ffaa00; box-sizing: border-box;
         }
-        .popup-header { background: #00ffcc; color: black; padding: 10px; text-align: center; font-weight: bold; font-family: sans-serif; position: sticky; top: 0; }
+        
+        /* TAB 2: VIRTUAL POPUP (Full Screen Modal) */
+        #ghost-popup {
+            display: none; position: fixed; top: 5%; left: 5%; width: 90vw; height: 90vh;
+            background: white; z-index: 200; border: 8px solid #00ffcc;
+            overflow: auto; color: black; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            border-radius: 10px;
+        }
+
+        /* LIVE TRACKING BARS */
+        .status-bar { 
+            background: #111; color: #fff; padding: 12px; font-weight: bold; 
+            text-align: center; position: sticky; top: 0; z-index: 999; 
+            font-size: 16px; font-family: monospace; border-bottom: 2px solid #555;
+        }
+        .error-msg { color: red; text-align: center; margin-top: 50px; font-weight: bold; font-family: sans-serif; }
     </style>
 </head>
 <body>
-    <div class="rain" id="rain-container"></div>
 
-    <div class="content">
-        <div class="dancers"><span>🕺</span> <span>💃</span></div>
-        <div class="shayari">"Bheegi hui mitti ki khushboo, aur ye berang barsaat,<br>Rangin ho gayi duniya saari, jabse mila hai tera saath."</div>
-        <a href="https://updategoli.blogspot.com" target="_blank" class="btn">More Content</a>
+    <div id="ghost-browser">
+        <div class="status-bar" id="status1">🟧 TAB 1 (Main Blog) - Request Bhej Raha Hai...</div>
+        <div id="browser-content" style="padding:15px; text-align: center; margin-top: 20px;">
+            <h2>⏳ Loading Blog Data...</h2>
+        </div>
     </div>
-
-    <div id="ghost-browser"></div>
     
     <div id="ghost-popup">
-        <div class="popup-header">🚨 GHOST POPUP ACTIVE (Referral: blogger.com)</div>
-        <div id="popup-content" style="padding: 15px;">
-            <h2 style="text-align: center; margin-top: 50px;">🔄 Simulating Random Click on Blog...</h2>
-        </div>
+        <div class="status-bar" id="status2">🟦 TAB 2 (Popup Post) - Link Click Hone Ka Wait Kar Raha Hai...</div>
+        <div id="popup-content" style="padding:15px;"></div>
     </div>
 
     <script>
-        // Rain Effects
-        const rainContainer = document.getElementById('rain-container');
-        const colors = ['#ff0055', '#00ffcc', '#ffcc00', '#cc00ff', '#00ff00'];
-        for (let i = 0; i < 60; i++) {
-            let drop = document.createElement('div');
-            drop.classList.add('drop');
-            drop.style.left = Math.random() * 100 + 'vw';
-            drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
-            drop.style.background = colors[Math.floor(Math.random() * colors.length)];
-            rainContainer.appendChild(drop);
-        }
-
-        // --- ENGINE MANAGEMENT ---
-        const ghostBrowser = document.getElementById('ghost-browser');
+        const ghostBrowser = document.getElementById('browser-content');
         const ghostPopup = document.getElementById('ghost-popup');
         const popupContent = document.getElementById('popup-content');
+        const status1 = document.getElementById('status1');
+        const status2 = document.getElementById('status2');
+        
         const mainBlogUrl = "https://updategoli.blogspot.com"; 
 
         async function startGhostEngine() {
             try {
-                // RULE 1 FIX: Pehli request bina referer param ke bhej rahe hain, 
-                # backend apne aap isme Render ka URL as Referer thop dega!
                 const renderLandingUrl = window.location.href;
+                
+                // Backend ko request
                 const response = await fetch(`/proxy-browser?target_url=${encodeURIComponent(mainBlogUrl)}&referer_url=${encodeURIComponent(renderLandingUrl)}`);
+                
+                // ERROR CATCHER: Agar backend fail hua toh ye pakad lega
+                if (!response.ok) {
+                    ghostBrowser.innerHTML = `<h2 class="error-msg">❌ HTTP Error ${response.status}: Backend Proxy Fail!<br>Bhai, ek baar check kar lo ki main.py update hua hai ya nahi.</h2>`;
+                    status1.innerText = "🟧 TAB 1 - SYSTEM HALTED (Error)";
+                    return;
+                }
+
                 const html = await response.text();
                 ghostBrowser.innerHTML = html;
+                status1.innerText = "🟧 TAB 1 - Blog Loaded! Tedha-medha scroll shuru...";
                 
-                // Random scroll limit generator
+                // Random scroll limit (1000px se 1500px)
                 const finalScrollTarget = Math.floor(Math.random() * 500) + 1000;
-                startRandomScroll(ghostBrowser, 0, finalScrollTarget, simulateRandomClick);
-            } catch (error) {}
+                startRandomScroll(document.getElementById('ghost-browser'), 0, finalScrollTarget, simulateRandomClick);
+            } catch (error) {
+                ghostBrowser.innerHTML = `<h2 class="error-msg">❌ Network/Fetch Error: ${error.message}</h2>`;
+            }
         }
 
-        // Random Human-Like Scroller
         function startRandomScroll(element, currentScroll, maxScroll, callback) {
             if (currentScroll >= maxScroll) {
-                setTimeout(callback, Math.floor(Math.random() * 2000) + 1000);
+                status1.innerText = "🟧 TAB 1 - Scroll Pura Hua! Ab random link par click karega...";
+                setTimeout(callback, 2000);
                 return;
             }
             const randomStep = Math.floor(Math.random() * 200) + 100;
-            element.scrollBy(0, randomStep);
-            const randomTime = Math.floor(Math.random() * 1500) + 1500;
+            element.scrollBy({ top: randomStep, behavior: 'smooth' });
             
+            const randomTime = Math.floor(Math.random() * 1500) + 1500;
             setTimeout(() => {
                 startRandomScroll(element, currentScroll + randomStep, maxScroll, callback);
             }, randomTime);
         }
 
-        // RULE 2 & 3 FIX: Pure Random Click & Blog Referrer
         async function simulateRandomClick() {
-            // Blog ke saare active links fetch karna
             const allLinks = Array.from(ghostBrowser.querySelectorAll('a'));
-            
-            // Filter out empty or hash links
-            const validLinks = allLinks.filter(a => a.href && a.href.startsWith('http') && !a.href.includes('#'));
+            // Sirf wahi links chhanenge jo tumhare blog ki proper posts hain
+            const validLinks = allLinks.filter(a => a.href && a.href.includes('updategoli.blogspot.com/') && !a.href.includes('#'));
 
             if (validLinks.length > 0) {
-                // Ekdum random link select hoga (Chahe post ho, categories ho, ya menu ho)
                 const randomSelectedLink = validLinks[Math.floor(Math.random() * validLinks.length)].href; 
                 
-                // Testing Popup ko screen ke beech me active karna
                 ghostPopup.style.display = 'block';
+                status2.innerText = `🟦 TAB 2 - Nayi Post Fetch Kar Raha Hai (Fake Referrer: main blog)...`;
 
                 try {
-                    // RULE 2 SYSTEM: Referer mein strict tarike se main blog url pass kar rahe hain!
+                    // Doosri request (Referrer spoofing ke sath)
                     const response = await fetch(`/proxy-browser?target_url=${encodeURIComponent(randomSelectedLink)}&referer_url=${encodeURIComponent(mainBlogUrl + "/")}`);
-                    const popupHtml = await response.text();
                     
+                    if (!response.ok) {
+                        popupContent.innerHTML = `<h2 class="error-msg">❌ Popup Error ${response.status}</h2>`;
+                        return;
+                    }
+
+                    const popupHtml = await response.text();
                     popupContent.innerHTML = popupHtml;
+                    status2.innerText = `🟦 TAB 2 - Nayi Post Loaded! Ab ye bhi scroll hogi...`;
 
-                    // Popup screen ko bhi unique scroll pattern dena
                     const finalPopupScroll = Math.floor(Math.random() * 400) + 600;
-                    startRandomScroll(ghostPopup, 0, finalPopupScroll, () => {
-                        console.log("Both Tabs processed correctly.");
+                    startRandomScroll(document.getElementById('ghost-popup'), 0, finalPopupScroll, () => {
+                        status2.innerText = `✅ MISSION SUCCESS: Dono tab me Human-Like reading complete!`;
                     });
-
                 } catch (error) {
-                    popupContent.innerHTML = "<h3>Tracking processing successfully completed.</h3>";
+                    popupContent.innerHTML = `<h2 class="error-msg">❌ Popup Fetch Error: ${error.message}</h2>`;
                 }
+            } else {
+                status1.innerText = "🟧 TAB 1 - Koi clickable link nahi mila!";
             }
         }
         
-        setTimeout(startGhostEngine, 2000);
+        setTimeout(startGhostEngine, 1500);
     </script>
 </body>
 </html>
