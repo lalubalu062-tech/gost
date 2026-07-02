@@ -4,22 +4,31 @@ import requests
 
 app = FastAPI()
 
-# Ye seedha HTML file dikhayega (Jinja2 ka error ab nahi aayega)
 @app.get("/")
 async def home():
     return FileResponse("templates/index.html")
 
-# Ye Ghost Proxy hai jo chup-chap dusra blog layega
+# Ghost Proxy - Strict Referrer Controller
 @app.get("/proxy-browser")
-async def fetch_blog(request: Request, target_url: str):
+async def fetch_blog(request: Request, target_url: str, referer_url: str = None):
     client_ip = request.client.host
+    
     headers = {
-        "User-Agent": request.headers.get("User-Agent", "Mozilla/5.0"),
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "X-Forwarded-For": client_ip, 
         "X-Real-IP": client_ip
     }
+    
+    # Agar frontend se koi referer bheja hai toh wahi lagao, 
+    # Nahi toh Render ka khud ka URL default referer banega
+    if referer_url:
+        headers["Referer"] = referer_url
+    else:
+        headers["Referer"] = str(request.base_url)
+        
     try:
         response = requests.get(target_url, headers=headers)
         return HTMLResponse(content=response.text)
     except Exception as e:
         return HTMLResponse(content=f"Error: {str(e)}")
+        
